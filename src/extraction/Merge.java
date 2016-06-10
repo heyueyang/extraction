@@ -11,7 +11,8 @@ import java.util.Map;
 
 /**
  * 将extraction1、extraction2和extraction3得到的数据进行合成。
- * 
+ * extraction1和extraction2的数据都存储于数据库中，而extraction3的数据以content的形式存在。为了将整体信息
+ * 能够写入csv文件，所以将extraction1和extraction2中的数据整合到conten中。
  * @param content
  *            合成的内容，其中key值为id，commit_id，file_id组成的list，StringBuffer存放具体的属性信息，
  *            属性信息同时又包括了id、commit_id和file_id(因为将来在写文件的时候，这三个属性的值也需要被写入)。

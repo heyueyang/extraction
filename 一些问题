@@ -1,6 +1,0 @@
-1.files表中的file_name，当一个文件重命名后，现实的文件名怎么是最初的而不是最后的？
-例如：select commit_id,current_file_path from actions where file_id=356;
-     select file_name from files where id=356;
-
-2.patch中如果一行的位置变了就认为是分别加减了一行，是否合理？
-
