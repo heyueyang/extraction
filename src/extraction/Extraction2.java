@@ -41,6 +41,9 @@ public class Extraction2 extends Extraction {
 		attributes = new ArrayList<>(); // 属性判断的时候还可以从数据库读取数据.
 	}
 
+	public Extraction2(String database) {
+		super(database);
+	}
 	//startId和endId指的是要得到的数据的区间。如果两个参数为-1
 	// 则表明对extraction1中的数据全部处理。
 	/**
@@ -190,5 +193,24 @@ public class Extraction2 extends Extraction {
 		while (resultSet.next()) {
 			System.out.println(resultSet.getString(1));
 		}
+	}
+	
+	/**
+	 * 提取extraction2中的id，commit_id，file_id，用于Merge中的merge12()场景。
+	 * @return extraction2中的id，commit_id，file_id的列表。
+	 * @throws SQLException
+	 */
+	public List<List<Integer>> GetId_commit_file() throws SQLException {
+		List<List<Integer>> res=new ArrayList<>();
+		sql="select id,commit_id,file_id from extraction2";
+		resultSet=stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			List<Integer> temp=new ArrayList<>();
+			temp.add(resultSet.getInt(1));
+			temp.add(resultSet.getInt(2));
+			temp.add(resultSet.getInt(3));
+			res.add(temp);
+		}
+		return res;
 	}
 }

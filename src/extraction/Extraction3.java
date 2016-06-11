@@ -54,16 +54,14 @@ public class Extraction3 extends Extraction {
 	 * 
 	 * @param database
 	 *            需要连接的数据库
-	 * @param csvFile
-	 *            用于
 	 * @param projectHome
 	 * @param startId
 	 * @param endId
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public Extraction3(String database, String csvFile, String projectHome,
-			int startId, int endId) throws SQLException, IOException {
+	public Extraction3(String database, String projectHome, int startId,
+			int endId) throws SQLException, IOException {
 		super(database);
 		id_commitId_fileIds = new ArrayList<>();
 		dictionary = new HashMap<>();
@@ -94,7 +92,7 @@ public class Extraction3 extends Extraction {
 	 * @throws IOException
 	 */
 	public void initial(int start, int end) throws SQLException, IOException {
-		if (start == -1 && end == -1) {
+		if (start == -1 || end == -1) {
 			sql = "select id,commit_id,file_id from extraction2";
 		} else {
 			sql = "select id,commit_id,file_id from extraction2 where id>="
@@ -117,23 +115,6 @@ public class Extraction3 extends Extraction {
 					+ resultSet.getInt(2) + "," + resultSet.getInt(3) + ",");
 			content.put(temp, write);
 		}
-	}
-
-	/**
-	 * 打印csv文件内容。
-	 * 
-	 * @param csvFile
-	 *            要打印输出的文件.
-	 * @throws IOException
-	 */
-	public void printCsc(String csvFile) throws IOException {
-		File readFile = new File(csvFile);
-		BufferedReader br = new BufferedReader(new FileReader(readFile));
-		String line;
-		while ((line = br.readLine()) != null) {
-			System.out.println(line);
-		}
-		br.close();
 	}
 
 	/**
@@ -299,15 +280,24 @@ public class Extraction3 extends Extraction {
 			}
 		}
 	}
-/**
- * 针对给定的commit_id,file_id对，将tent中s的值更新。
- * @param s 需要更新的属性
- * @param tent 需要更新的包含实例的实例集。
- * @param commitId 需要更新的实例对应的commit_id。
- * @param fileId 需要更新的实例对应的file_id。
- * @param value 需要更新的值。
- * @return 新的实例集。
- */
+
+	/**
+	 * 针对给定的commit_id,file_id对，将tent中s的值更新。
+	 * 需要注意的是，这样的搭配导致extraction3提取的数据最后一个是逗号，
+	 * 导致weka无法识别，这个问题在Merge类的merge123()方法中处理。
+	 * 
+	 * @param s
+	 *            需要更新的属性
+	 * @param tent
+	 *            需要更新的包含实例的实例集。
+	 * @param commitId
+	 *            需要更新的实例对应的commit_id。
+	 * @param fileId
+	 *            需要更新的实例对应的file_id。
+	 * @param value
+	 *            需要更新的值。
+	 * @return 新的实例集。
+	 */
 	public Map<List<Integer>, StringBuffer> writeInfo(String s,
 			Map<List<Integer>, StringBuffer> tent, int commitId, int fileId,
 			Integer value) {
@@ -351,11 +341,12 @@ public class Extraction3 extends Extraction {
 		return tent;
 	}
 
-/**
- * 获取path中的信息。
- * @throws SQLException
- * @throws IOException
- */
+	/**
+	 * 获取path中的信息。
+	 * 
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public void pathInfo() throws SQLException, IOException {
 		for (List<Integer> list : id_commitId_fileIds) {
 			sql = "select current_file_path from actions where commit_id="
@@ -384,6 +375,10 @@ public class Extraction3 extends Extraction {
 	}
 
 	public Map<List<Integer>, StringBuffer> getContent() {
+		for (List<Integer> key : content.keySet()) {
+			StringBuffer temp=content.get(key);
+			content.put(key, new StringBuffer(temp.subSequence(0, temp.length()-1)));
+		}
 		return content;
 	}
 

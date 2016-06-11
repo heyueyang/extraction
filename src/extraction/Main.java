@@ -6,33 +6,44 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
-
+	static FileOperation fileOperation;
+	
 	public static void main(String[] args) throws Exception {
+		Extraction3 extraction3 = new Extraction3("voldemort", "/home/niu/test/voldeProject", -1, -1);
+		fileOperation=new FileOperation();
+		Merge merge=new Merge(extraction3.getContent(), "voldemort");
+		fileOperation.writeContent(merge.merge123(), "123d.csv");
+		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
+	}
 
+	public void example() throws SQLException, IOException {
+		Extraction2 extraction2 = new Extraction2("voldemort");
+		Map<List<Integer>, StringBuffer> content = new Extraction3("voldemort", "/home/niu/test/voldeProject", -1, -1).getContent();
+		System.out.println(content.size());
+		List<List<Integer>> id_commit_fileId = extraction2.GetId_commit_file();
+		Merge merge = new Merge(content, "voldemort");
+		FileOperation fileOperation = new FileOperation();
+		fileOperation.writeContent(merge.merge123(), "123.csv");
 	}
 
 	static public void Automatic() throws Exception {
 		Extraction1 extraction1 = new Extraction1("voldemort", -1, 4305); // 虽然只选取了300次commit，为了辨识这300次commit，
-		extraction1.Carry1();                                                                                  ////所有的commit都要处理。
+		extraction1.Carry1(); // //所有的commit都要处理。
 		extraction1.Carry2();
 
-		Extraction2 extraction2 = new Extraction2("voldemort",1219 , 1754);
-		extraction2.extraFromTxt("501-800.txt","voldeProject");
+		Extraction2 extraction2 = new Extraction2("voldemort", 1219, 1754);
+		extraction2.extraFromTxt("501-800.txt", "voldeProject");
 		extraction2.creatDeltMetrics();
 
-		Extraction3 extraction3 = new Extraction3("try",
-				"/home/niu/voldeData.csv", "/home/niu/project", 1000, 1499);
-		Map<List<Integer>, StringBuffer> content = extraction3.getContent();
-		List<List<Integer>> commit_fileIds = extraction3.getCommitId_fileIds();
-		Merge merge = new Merge(content, commit_fileIds, "try");
-		merge.merge12();
-		FileOperation writeFile = new FileOperation();
-		writeFile.writeContent(content, "/home/niu/voldeData.csv");
-		writeFile.writeDict("/home/niu/dict.txt", extraction3.dictionary);
+		Extraction3 extraction3 = new Extraction3("voldemort", "/home/niu/test/voldeProject", -1, -1);
+		fileOperation=new FileOperation();
+		fileOperation.writeContent(extraction3.getContent(), "extraction3.csv");
+		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
 	}
 
 	static public void testMatch() {
@@ -62,7 +73,7 @@ public class Main {
 	public static void exectMerge() throws SQLException, IOException {
 		String csvFileString = "/home/niu/test.csv";
 		String projectHomeString = "/home/niu/project";
-		Extraction3 extraction3 = new Extraction3("try", csvFileString,
+		Extraction3 extraction3 = new Extraction3("try",
 				projectHomeString, 1000, 1499);
 		Map<List<Integer>, StringBuffer> content = extraction3.getContent();
 		FileOperation fileOperation = new FileOperation();

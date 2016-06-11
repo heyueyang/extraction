@@ -3,20 +3,19 @@ package extraction;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.omg.CORBA.PUBLIC_MEMBER;
-
+/**
+ * 文件操作类，主要用于将得到的数据写入csv文件。
+ * @author niu
+ *
+ */
 public class FileOperation {
 
 	List<List<Integer>> id_commit_fileIds;
@@ -54,7 +53,12 @@ public class FileOperation {
 		br.flush();
 		br.close();
 	}
-
+/**
+ * 将Merge整合的数据写入csv文件
+ * @param content 需要写入的文件
+ * @param csvFile 被写入的文件名
+ * @throws IOException
+ */
 	public void writeContent(Map<List<Integer>, StringBuffer> content,
 			String csvFile) throws IOException {
 
