@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 /**
  * 从miningit生成的数据库中提取一些基本信息，例如作者姓名，提交时间，累计的bug计数等信息。 构造函数中提供需要连接的数据库。
  * 根据指定的范围获取commit_id列表（按照时间顺序）。通过对各表的操作获取一些基本数据。
+ * 除了基本表，miningit还需执行extension=bugFixMessage，metrics
  * @param sql
  *            用以提取数据并存放处理后的数据的数据库。
  * @param start
@@ -202,7 +203,9 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取源码长度
+	 * 获取源码长度。
+	 * 得到表metrics的复杂度开销很大，
+	 * 而得到的信息在此后的extraction2中非常方便的提取，所以真心觉得此处提起这个度量没有什么意义。
 	 * @throws SQLException
 	 */
 	public void sloc() throws SQLException {
@@ -372,7 +375,6 @@ public class Extraction1 extends Extraction {
 				ids.add(resultSet.getInt(1));
 			}
 		}
-       System.out.println(ids.size());
 		for (Integer integer : ids) {
 			sql = "select  id,file_id,old_end_line from hunks where commit_id=" + integer;
 			resultSet = stmt.executeQuery(sql);

@@ -3,12 +3,19 @@ package extraction;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 词袋类，用于将一些源码信息转为词向量的形式，目前转义符后跟数字的情况还没考虑。
+ * 将源码按照是注释区还是非注释区一块块的解析，拆分。例如是对于注释区的内容，注释中的大量*是
+ * 不能当做除法的。
+ * @author niu
+ *
+ */
 public class Bow {
 	Map<String, Integer> bag;
-	String[] dictory2 = { "!=", "==", "++", "--", "||", "&&","<=",">="};
+	String[] dictory2 = { "!=", "==", "++", "--", "||", "&&", "<=", ">=" };
 	String[] dictory1 = { "=", "+", "-", "*", "/", "%", "!", "?" };
 	String[] dictory3 = { "=", "!=", "+", "*", "-", "||", "/", "&", "%", "!",
-			"?",">=","<=","<",">" }; // 去除注释中或者字符串中的特殊符号。
+			"?", ">=", "<=", "<", ">" }; // 去除注释中或者字符串中的特殊符号。
 
 	public Map<String, Integer> bow(String text) {
 		bag = new HashMap<String, Integer>();
@@ -37,7 +44,6 @@ public class Bow {
 			}
 			startIndex = endIndex;
 		}
-
 		return bag;
 	}
 
@@ -62,10 +68,29 @@ public class Bow {
 	 * @return 下一次出现注释或者字符串的地方
 	 */
 	public int getIndex(StringBuffer text, int start) {
-		while (start < text.length() - 1
-				&& (!text.substring(start, start + 2).equals("/*"))
-				&& text.charAt(start) != '"'
-				&& (!text.substring(start, start + 2).equals("//"))) {
+		while (start < text.length()) {
+			if (start < text.length() - 1
+					&& text.substring(start, start + 2).equals("/*")) {
+				break;
+			}
+			if (start < text.length() - 1 && start > 1
+					&& text.charAt(start) == '"'
+					&& text.charAt(start - 1) == '\''
+					&& text.charAt(start + 1) == '\'') {
+				start++;
+				continue;
+			}
+			if ((start > 1 && text.charAt(start) == '"' && text
+					.charAt(start - 1) != '\\')
+					|| (start > 2 && text.substring(start - 2, start + 1)
+							.equals("\\\\\""))
+					|| (start == 1 && text.charAt(start) == '"')) {
+				break;
+			}
+			if (start < text.length() - 1
+					&& text.substring(start, start + 2).equals("//")) {
+				break;
+			}
 			start++;
 		}
 		return start;
@@ -82,10 +107,14 @@ public class Bow {
 		StringBuffer hunkBuffer = new StringBuffer();
 		bag = new HashMap<String, Integer>();
 		int i = 1;
-		while (text.toString().length() > 0) {//将源码区内容直接加入hunkBuffer，将注释区内容处理后加入hunkBuffer。
+		while (text.toString().length() > 0) {// 将源码区内容直接加入hunkBuffer，将注释区内容处理后加入hunkBuffer。
 			int start = 0;
 			start = getIndex(text, start);
-			while (text.charAt(start) == '"') { //如果找到的第一个注释类字符为“，如果其前面由\那么就不是真正的注释区的开始。
+			if (start==text.length()) {   //如果start直接找到了文件末尾，则说明上面没有注释区。
+				hunkBuffer.append(" " + text.substring(0, start));
+				break;
+			}
+			while (text.charAt(start) == '"') { // 如果找到的第一个注释类字符为“，如果其前面由\那么就不是真正的注释区的开始。
 				if (start > 0 && text.charAt(start - 1) == '\\') { // 不是一个字符串真正的开始或者结束。
 					start++;
 					start = getIndex(text, start);
@@ -93,15 +122,15 @@ public class Bow {
 					break;
 				}
 			}
-//执行到此处要么到了文档末尾，要么必然找到了注释区的开始。
-			if (start == text.length() - 1) {  //整个文档搜索到了最后一个字符，那么就直接退出。
+			// 执行到此处要么到了文档末尾，要么必然找到了注释区的开始。
+			if (start == text.length() - 1) { // 整个文档搜索到了最后一个字符，那么就直接退出。
 				hunkBuffer.append(text);
 				break;
 			}
-//第一块注释区前面的都是源码内容，加入hunkBuffer，但是似乎不需要加这个空格，如果加了，下面的分裂应以一个或多个空格分。
+			// 第一块注释区前面的都是源码内容，加入hunkBuffer，但是似乎不需要加这个空格，如果加了，下面的分裂应以一个或多个空格分。
 			hunkBuffer.append(" " + text.substring(0, start));
-			text.delete(0, start);  //将text中处理完的内容删掉
-			start = 0; //将指针指向text头部。
+			text.delete(0, start); // 将text中处理完的内容删掉
+			start = 0; // 将指针指向text头部。
 			String startOper = new String();
 			if (text.charAt(start) == '/') { // 匹配之前出现的操作符，确定注释区。
 				if (text.charAt(start + 1) == '*') {
@@ -114,7 +143,7 @@ public class Bow {
 			}
 			String rage;
 
-			if (startOper.equals("//")) {    //确定当前注释区范围，处理掉双斜杠，用removeSC2方法处理注释区内容。
+			if (startOper.equals("//")) { // 确定当前注释区范围，处理掉双斜杠，用removeSC2方法处理注释区内容。
 				int inedex = text.indexOf("\n");
 				if (inedex == -1) { // 最后一样的注释
 					rage = text.substring(start + 2, text.length());
@@ -131,18 +160,14 @@ public class Bow {
 			} else {
 				text.deleteCharAt(0);
 				int tail = text.indexOf("\"");
-			/*	while ((tail == 1 && text.charAt(tail - 1) == '\\')
-						|| (tail > 1 && text.charAt(tail - 1) == '\\' && text
-								.charAt(tail - 2) != '\\')) { // 必定有一个tail与start对应
-					tail = tail + 1;
-					tail = tail
-							+ text.substring(tail, text.length()).indexOf('"');
-				}*/
-				while (tail >= 1 && text.charAt(tail - 1) == '\\') { // 必定有一个tail与start对应
+				while ((tail > 1 && text.charAt(tail - 1) == '\\' && text
+						.charAt(tail - 2) != '\\')
+						|| (tail == 1 && text.charAt(0) == '\\')) { // 必定有一个tail与start对应.若引号前有两个双斜杠，则该引号为真正字符串结束。
 					tail = tail + 1;
 					tail = tail
 							+ text.substring(tail, text.length()).indexOf('"');
 				}
+
 				rage = text.substring(0, tail);
 				i++;
 				hunkBuffer.append(" " + removeSC2(rage));
@@ -174,15 +199,15 @@ public class Bow {
 					}
 				}
 				if (contain == false) {
-					//<>不是操作符的情况
-					if (string.contains("<")||string.contains(">")) {
-						String[] divTempStrings=string.split(">|<");
+					// <>不是操作符的情况
+					if (string.contains("<") || string.contains(">")) {
+						String[] divTempStrings = string.split(">|<");
 						for (String string2 : divTempStrings) {
 							if (!string2.equals("")) {
-							putInBag(string2, bag);
+								putInBag(string2, bag);
 							}
 						}
-					}else {
+					} else {
 						putInBag(string, bag);
 					}
 				}
@@ -202,9 +227,13 @@ public class Bow {
 	 * 判定字符串中是否包含着操作符，如果包含或者本身自己就是操作符则将二者分开，然后分别加入bag。
 	 * 需要注意的是如果一个字符串中包含了<，或者>，不认为这是操作符，以便和java中使用很多的<区分，
 	 * 就是说，默认如果是减号的话一定没有和变量夹杂在一起
-	 * @param oper 测试的操作符
-	 * @param string 测试的字符串
-	 * @param bag 要加入的bag
+	 * 
+	 * @param oper
+	 *            测试的操作符
+	 * @param string
+	 *            测试的字符串
+	 * @param bag
+	 *            要加入的bag
 	 * @return 是否包含操作符或者本身是操作符
 	 */
 	public boolean diviOper(String oper, String string, Map<String, Integer> bag) {
@@ -212,22 +241,22 @@ public class Bow {
 			putInBag(string, bag);
 			return true;
 		}
-		String diOperString=oper;
+		String diOperString = oper;
 		if (string.contains(oper)) {
 			if (oper.equals("++")) {
-				diOperString="\\+\\+";
-			}else if (oper.equals("+")) {
-				diOperString="\\+";
-			}else if (oper.equals("?")) {
-				diOperString="\\?";
-			}else if (oper.equals("*")) {
-				diOperString="\\*";
+				diOperString = "\\+\\+";
+			} else if (oper.equals("+")) {
+				diOperString = "\\+";
+			} else if (oper.equals("?")) {
+				diOperString = "\\?";
+			} else if (oper.equals("*")) {
+				diOperString = "\\*";
 			}
 			String[] divide1 = string.split(diOperString);
 			for (String string2 : divide1) {
 				if (!string2.equals("")) {
 					putInBag(string2, bag);
-				}	
+				}
 			}
 			putInBag(oper, bag);
 			return true;

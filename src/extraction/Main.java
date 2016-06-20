@@ -14,11 +14,11 @@ public class Main {
 	static FileOperation fileOperation;
 	
 	public static void main(String[] args) throws Exception {
-		Extraction3 extraction3 = new Extraction3("voldemort", "/home/niu/test/voldeProject", -1, -1);
+		Extraction3 extraction3 = new Extraction3("struts", "/home/niu/test/strutsProject", -1, -1);
 		fileOperation=new FileOperation();
-		Merge merge=new Merge(extraction3.getContent(), "voldemort");
-		fileOperation.writeContent(merge.merge123(), "123d.csv");
-		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
+		Merge merge=new Merge(extraction3.getContent(), "struts");
+		fileOperation.writeContent(merge.merge123(), "struts.csv");
+		fileOperation.writeDict("strutsDict.txt", extraction3.getDictionary());
 	}
 
 	public void example() throws SQLException, IOException {
@@ -42,7 +42,8 @@ public class Main {
 
 		Extraction3 extraction3 = new Extraction3("voldemort", "/home/niu/test/voldeProject", -1, -1);
 		fileOperation=new FileOperation();
-		fileOperation.writeContent(extraction3.getContent(), "extraction3.csv");
+		Merge merge=new Merge(extraction3.getContent(), "voldemort");
+		fileOperation.writeContent(merge.merge123(), "123d.csv");
 		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
 	}
 

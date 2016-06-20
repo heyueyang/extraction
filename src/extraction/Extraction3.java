@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.io.filefilter.AndFileFilter;
+
 /**
  * 提取源码信息路径信息。
  * 
@@ -225,6 +227,7 @@ public class Extraction3 extends Extraction {
 			if (list.get(1) != -1) {
 				System.out.println("extract from " + list.get(1) + "_"
 						+ list.get(2) + ".java");
+	
 				sql = "select patch from patches where commit_id="
 						+ list.get(1) + " and file_id=" + list.get(2);
 				bow = new Bow();
@@ -255,6 +258,7 @@ public class Extraction3 extends Extraction {
 					}
 				}
 
+
 				File sourceFile = new File(projectHome + "/" + list.get(1)
 						+ "_" + list.get(2) + ".java");
 				BufferedReader bReader;
@@ -270,7 +274,6 @@ public class Extraction3 extends Extraction {
 					sBuffer.append(line + "\n");
 				}
 				bReader.close();
-
 				Map<String, Integer> patch = bow.bowP2(sBuffer);
 
 				for (String s : patch.keySet()) {
