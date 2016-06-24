@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import weka.attributeSelection.CfsSubsetEval;
 import weka.attributeSelection.LinearForwardSelection;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.ArffSaver;
@@ -22,11 +25,6 @@ import weka.filters.supervised.attribute.Discretize;
  */
 
 public class PreProcess {
-	public static void main(String[] args) throws Exception {
-		// csvToArff("struts.csv", "struts.arff");
-		rmAttribute("volde2.arff");
-	}
-
 	/**
 	 * 将csv文件转为arff文件。 需要特别注意的是类标签的设定容易出错，如果不确定类标签为多少号，需要看一下csv文件。
 	 * 
