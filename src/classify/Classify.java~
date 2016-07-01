@@ -5,9 +5,7 @@ import java.util.List;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
-/*
-*classify class.
-*/
+
 public abstract class Classify {
 	Classifier cla;
 	Evaluation eval;
