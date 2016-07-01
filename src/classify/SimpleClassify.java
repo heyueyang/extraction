@@ -68,6 +68,4 @@ public	void Evaluation() throws Exception {
 		res.add(Math.sqrt(res.get(0)* res.get(1)));
 		res.add(eval.totalCost());
 	}
-
-
 }

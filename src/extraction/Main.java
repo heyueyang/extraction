@@ -14,11 +14,10 @@ public class Main {
 	static FileOperation fileOperation;
 	
 	public static void main(String[] args) throws Exception {
-		Extraction3 extraction3 = new Extraction3("struts", "/home/niu/test/strutsProject", -1, -1);
-		fileOperation=new FileOperation();
-		Merge merge=new Merge(extraction3.getContent(), "struts");
-		fileOperation.writeContent(merge.merge123(), "struts.csv");
-		fileOperation.writeDict("strutsDict.txt", extraction3.getDictionary());
+	//	Extraction1 extraction1 = new Extraction1("voldemort", -1, 4305);
+	//	extraction1.bug_introducing();
+	Test test=new Test("voldemort");
+	test.testBugIntro(568, 686);
 	}
 
 	public void example() throws SQLException, IOException {

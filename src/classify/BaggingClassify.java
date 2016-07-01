@@ -14,7 +14,7 @@ public class BaggingClassify extends Classify {
 		super(classifier, instances);
 		bagging = new Bagging();
 		bagging.setClassifier(cla);
-		bagging.setBagSizePercent(50);
+		//bagging.setBagSizePercent(50);
 		bagging.setNumIterations(10);
 	}
 
